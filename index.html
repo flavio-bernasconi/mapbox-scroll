@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fly to a location based on scroll position</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      .flex {
+        display: flex;
+      }
+      .stretch {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: stretch;
+      }
+      .stretch p {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <style>
+      #map {
+        position: fixed;
+        width: 50%;
+      }
+      #features {
+        width: 50%;
+        margin-left: 50%;
+        font-family: sans-serif;
+        overflow-y: scroll;
+        background-color: #fafafa;
+      }
+      section {
+        padding: 25px 50px;
+        line-height: 25px;
+        border-bottom: 1px solid #ddd;
+        opacity: 0.25;
+        font-size: 13px;
+        min-height: 100vh;
+      }
+      section.active {
+        opacity: 1;
+      }
+      section:last-child {
+        border-bottom: none;
+        margin-bottom: 200px;
+      }
+    </style>
+
+    <div id="map"></div>
+    <div id="features">
+      <section id="first-section"></section>
+      <!-- <section id="baker" class="active"></section>
+      <section id="aldgate"> -->
+    </div>
+
+    <script id="section-event" type="text/x-handlebars-template">
+      <section class="event" id="{{id}}">
+        <h1>
+          {{location}}
+        </h1>
+        <div class="flex">
+          <div>
+            {{#each events}}
+              <h2>
+                {{this}}
+              </h2>
+            {{/each}}
+          </div>
+          <div class="stretch">
+            {{#each days}}
+              <p>
+                {{this}}
+              </p>
+            {{/each}}
+          </div>
+        </div>
+      </section>
+    </script>
+
+    <script src="building.js"></script>
+    <script src="apiCall.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiZmxhdmlvYmVybmFzY29uaSIsImEiOiJjazk5b3Q0amcwMWhhM2ZwN213N3liZ3FtIn0.ByKkoMxbBq27kygkf1KqlA";
+
+      const initialCenter = [9.19, 45.4642];
+
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: initialCenter,
+        zoom: 15.5,
+        bearing: 27,
+        pitch: 45,
+      });
+
+      addBuilding3D();
+      getCurrentEvents();
+      centers(getInfoCurrentVenue);
+
+      function getInfoCurrentVenue(dataset) {
+        const uidsEvents = Object.keys(dataset);
+
+        uidsEvents.map((id) => {
+          var sourceCode = $("#section-event").html();
+          var template = Handlebars.compile(sourceCode);
+
+          const location = dataset[id][0].nameVenue;
+          const events = dataset[id].map((e) => e.event.name);
+          const days = dataset[id].map((e) => {
+            dateOfStart = e.event.dates.start.localTime;
+            return dateOfStart;
+          });
+          const hours = dataset[id].map((e) => {
+            dateOfStart = e.event.dates.start;
+            return dateOfStart;
+          });
+
+          var elements = {
+            id,
+            location,
+            events,
+            days,
+            hours,
+          };
+
+          var html = template(elements);
+
+          $("#features").append(html);
+        });
+      }
+    </script>
+  </body>
+</html>
