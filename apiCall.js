@@ -2,7 +2,7 @@ const accessKey = "k7WafyB240GbvXdwJ5wgeCq4LiceFjnY";
 const country = "IT";
 const limitEvents = 200;
 
-const eventsEndPoint = (codeCountry) =>
+const eventsEndPoint = codeCountry =>
   `https://app.ticketmaster.com/discovery/v2/events?apikey=${accessKey}&locale=*&countryCode=${codeCountry}&size=${limitEvents}&sort=date,asc&city=Milano`;
 
 const venuesCall = `https://app.ticketmaster.com/discovery/v2/venues?apikey=${accessKey}&countryCode=${country}&sort=relevance,asc&size=${limitEvents}`;
@@ -10,38 +10,38 @@ const venuesCall = `https://app.ticketmaster.com/discovery/v2/venues?apikey=${ac
 const getCurrentEvents = () => {
   $.ajax({
     url: eventsEndPoint(country),
-    success: function (dataset) {
+    success: function(dataset) {
       getInfoVenues(dataset);
       getEvents(dataset);
     },
-    error: function (error) {
+    error: function(error) {
       console.log(error);
-    },
+    }
   });
 };
 
-const createList = (getInfoCurrentVenue) => {
+const createList = getInfoCurrentVenue => {
   $.ajax({
     url: eventsEndPoint(country),
-    success: function (dataset) {
+    success: function(dataset) {
       const venueInfo = getInfoVenues(dataset);
       const createSections = createSectionCoordinate(venueInfo);
       addMarkerVenue(createSections);
       getCurrentCenter(createSections);
       getInfoCurrentVenue(venueInfo);
     },
-    error: function (error) {
+    error: function(error) {
       console.log(error);
-    },
+    }
   });
 };
 
 function getEvents(dataset, type) {
-  const infoEvent = dataset._embedded.events.map((event) => {
+  const infoEvent = dataset._embedded.events.map(event => {
     const {
       id: idVenue,
       name: nameVenue,
-      location,
+      location
     } = event._embedded.venues[0];
 
     let coordinatesStr =
@@ -55,15 +55,15 @@ function getEvents(dataset, type) {
     }
 
     const cleanCoordinate = coordinatesStr
-      .filter((c) => c)
-      .map((coordinate) => Number(coordinate));
+      .filter(c => c)
+      .map(coordinate => Number(coordinate));
 
     type === "icon" && cleanCoordinate.push(200);
 
     return {
       idVenue,
       nameVenue,
-      cleanCoordinate,
+      cleanCoordinate
     };
   });
 
@@ -71,12 +71,12 @@ function getEvents(dataset, type) {
 }
 
 function getInfoVenues(dataset) {
-  const infoEvent = dataset._embedded.events.map((event) => {
+  const infoEvent = dataset._embedded.events.map(event => {
     const {
       id: idVenue,
       name: nameVenue,
       city,
-      location,
+      location
     } = event._embedded.venues[0];
 
     let coordinatesStr =
@@ -89,26 +89,26 @@ function getInfoVenues(dataset) {
     }
 
     const cleanCoordinate = coordinatesStr
-      .filter((c) => c)
-      .map((coordinate) => Number(coordinate));
+      .filter(c => c)
+      .map(coordinate => Number(coordinate));
 
     return {
       idVenue,
       nameVenue,
       cleanCoordinate,
-      event,
+      event
     };
   });
 
-  const filteredCoordinates = infoEvent.filter((event) => {
+  const filteredCoordinates = infoEvent.filter(event => {
     return event.cleanCoordinate.length > 0;
   });
-  const idsVenues = filteredCoordinates.map((event) => event.idVenue);
+  const idsVenues = filteredCoordinates.map(event => event.idVenue);
 
   const eventGroupped = {};
 
-  idsVenues.forEach((id) => {
-    return (eventGroupped[id] = filteredCoordinates.filter((event) => {
+  idsVenues.forEach(id => {
+    return (eventGroupped[id] = filteredCoordinates.filter(event => {
       return event.idVenue === id;
     }));
   });
@@ -120,14 +120,14 @@ function createSectionCoordinate(dataset) {
   const ids = Object.keys(dataset);
   const container = {};
 
-  ids.forEach((id) => {
+  ids.forEach(id => {
     return (container[id] = {
       center: dataset[id][0].cleanCoordinate,
       bearing: 27,
       zoom: 17,
       speed: 1,
       curve: 0.7,
-      pitch: 45,
+      pitch: 45
     });
   });
 
@@ -141,17 +141,41 @@ function getCurrentCenter(info) {
     "first-section": {
       center: initialCenter,
       bearing: 27,
-      zoom: 13,
+      zoom: 11,
       speed: 1,
       curve: 0.7,
-      pitch: 45,
+      pitch: 45
     },
-    ...info,
+    ...info
   };
 
-  window.onscroll = function () {
+  $(document.body).on("touchmove", function() {
     var chapterNames = Object.keys(chapters);
 
+    for (var i = 0; i < chapterNames.length; i++) {
+      var chapterName = chapterNames[i];
+
+      if (isElementOnScreen(chapterName)) {
+        setActiveChapter(chapterName);
+        break;
+      }
+    }
+  }); // for mobile
+
+  function isScrollin() {
+    var chapterNames = Object.keys(chapters);
+    for (var i = 0; i < chapterNames.length; i++) {
+      var chapterName = chapterNames[i];
+
+      if (isElementOnScreen(chapterName)) {
+        setActiveChapter(chapterName);
+        break;
+      }
+    }
+  }
+
+  window.onscroll = function() {
+    var chapterNames = Object.keys(chapters);
     for (var i = 0; i < chapterNames.length; i++) {
       var chapterName = chapterNames[i];
 
@@ -179,6 +203,8 @@ function getCurrentCenter(info) {
     var element = document.getElementById(id);
     var bounds = element.getBoundingClientRect();
 
+    console.log("scroll", bounds.top, bounds.bottom, window.innerHeight);
+
     return (
       bounds.top < window.innerHeight &&
       bounds.bottom > window.innerHeight - 400
@@ -191,7 +217,7 @@ function getCurrentCenter(info) {
 function addMarkerVenue(coordinates) {
   const ids = Object.keys(coordinates);
 
-  ids.forEach((id) => {
+  ids.forEach(id => {
     var el = document.createElement("div");
     el.className = "marker";
     new mapboxgl.Marker(el).setLngLat(coordinates[id].center).addTo(map);
