@@ -12,88 +12,33 @@
       href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css"
       rel="stylesheet"
     />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-      }
-      .flex {
-        display: flex;
-      }
-      .stretch {
-        display: flex;
-        flex-wrap: wrap;
-        align-content: stretch;
-      }
-      .stretch p {
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <style>
-      #map {
-        position: fixed;
-        width: 50%;
-      }
-      #features {
-        width: 50%;
-        margin-left: 50%;
-        font-family: sans-serif;
-        overflow-y: scroll;
-        background-color: #fafafa;
-      }
-      section {
-        padding: 25px 50px;
-        line-height: 25px;
-        border-bottom: 1px solid #ddd;
-        opacity: 0.25;
-        font-size: 13px;
-        min-height: 100vh;
-      }
-      section.active {
-        opacity: 1;
-      }
-      section:last-child {
-        border-bottom: none;
-        margin-bottom: 200px;
-      }
-    </style>
-
     <div id="map"></div>
     <div id="features">
-      <section id="first-section"></section>
+      <section id="first-section"><h1>first section</h1></section>
       <!-- <section id="baker" class="active"></section>
       <section id="aldgate"> -->
     </div>
 
     <script id="section-event" type="text/x-handlebars-template">
-      <section class="event" id="{{id}}">
-        <h1>
+      <section class="event " id="{{id}}">
+        <h1 class="location-name">
           {{location}}
         </h1>
-        <div class="flex">
-          <div>
-            {{#each events}}
-              <h2>
-                {{this}}
-              </h2>
-            {{/each}}
+        <div class="flex ">
+          <div class="names">
+                {{#each infoEvent as |item|}}
+                <div class="location card">
+                    <h1 >{{item.[0]}}</h1>
+                    <div class="dates">
+                        <h2>{{item.[2]}}</h2>
+                        <h3>{{item.[1]}}</h3>
+                    </div>
+                </div>
+                {{/each}}
           </div>
-          <div class="stretch">
-            {{#each days}}
-              <p>
-                {{this}}
-              </p>
-            {{/each}}
-          </div>
-        </div>
       </section>
     </script>
 
@@ -101,7 +46,7 @@
     <script src="apiCall.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
     <script>
       mapboxgl.accessToken =
         "pk.eyJ1IjoiZmxhdmlvYmVybmFzY29uaSIsImEiOiJjazk5b3Q0amcwMWhhM2ZwN213N3liZ3FtIn0.ByKkoMxbBq27kygkf1KqlA";
@@ -112,14 +57,15 @@
         container: "map",
         style: "mapbox://styles/mapbox/dark-v10",
         center: initialCenter,
-        zoom: 15.5,
+        zoom: 13,
         bearing: 27,
         pitch: 45,
+        interactive: false,
       });
 
       addBuilding3D();
       getCurrentEvents();
-      centers(getInfoCurrentVenue);
+      createList(getInfoCurrentVenue);
 
       function getInfoCurrentVenue(dataset) {
         const uidsEvents = Object.keys(dataset);
@@ -129,22 +75,23 @@
           var template = Handlebars.compile(sourceCode);
 
           const location = dataset[id][0].nameVenue;
+
           const events = dataset[id].map((e) => e.event.name);
           const days = dataset[id].map((e) => {
             dateOfStart = e.event.dates.start.localTime;
             return dateOfStart;
           });
           const hours = dataset[id].map((e) => {
-            dateOfStart = e.event.dates.start;
+            dateOfStart = e.event.dates.start.localDate;
             return dateOfStart;
           });
+
+          const infoEvent = _.zip(events, days, hours);
 
           var elements = {
             id,
             location,
-            events,
-            days,
-            hours,
+            infoEvent,
           };
 
           var html = template(elements);
@@ -152,6 +99,30 @@
           $("#features").append(html);
         });
       }
+
+      //   var geojson = {
+      //     type: "FeatureCollection",
+      //     features: [
+      //       {
+      //         type: "Feature",
+      //         geometry: {
+      //           type: "Point",
+      //           coordinates: [-77.032, 38.913],
+      //         },
+      //       },
+      //     ],
+      //   };
+
+      //   geojson.features.forEach(function (marker) {
+      //     // create a HTML element for each feature
+      //     var el = document.createElement("div");
+      //     el.className = "marker";
+
+      //     // make a marker for each feature and add to the map
+      //     new mapboxgl.Marker(el)
+      //       .setLngLat(marker.geometry.coordinates)
+      //       .addTo(map);
+      //   });
     </script>
   </body>
 </html>

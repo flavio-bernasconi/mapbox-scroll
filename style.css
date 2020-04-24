@@ -1,0 +1,109 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-weight: lighter;
+}
+#map {
+  position: fixed;
+  width: 50%;
+  height: 100vh;
+}
+.card {
+  background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
+  background-size: 400% 400%;
+  -webkit-animation: AnimationName 5s ease infinite;
+  -moz-animation: AnimationName 5s ease infinite;
+  animation: AnimationName 5s ease infinite;
+  color: white;
+}
+
+@-webkit-keyframes AnimationName {
+  0% {
+    background-position: 22% 0%;
+  }
+  50% {
+    background-position: 79% 100%;
+  }
+  100% {
+    background-position: 22% 0%;
+  }
+}
+@-moz-keyframes AnimationName {
+  0% {
+    background-position: 22% 0%;
+  }
+  50% {
+    background-position: 79% 100%;
+  }
+  100% {
+    background-position: 22% 0%;
+  }
+}
+@keyframes AnimationName {
+  0% {
+    background-position: 22% 0%;
+  }
+  50% {
+    background-position: 79% 100%;
+  }
+  100% {
+    background-position: 22% 0%;
+  }
+}
+
+.flex {
+  display: flex;
+}
+.names {
+  width: 100%;
+  font-weight: lighter !important;
+}
+.location {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 15px;
+}
+.location-name {
+  font-size: 2rem;
+}
+.dates {
+  width: 200px;
+  text-align: right;
+}
+#features {
+  width: 50%;
+  margin-left: 50%;
+  font-family: sans-serif;
+  overflow-y: scroll;
+  background-color: #fafafa;
+}
+section {
+  padding: 25px 50px;
+  line-height: 25px;
+  border-bottom: 1px solid #ddd;
+  opacity: 0.25;
+  font-size: 13px;
+  min-height: 100vh;
+}
+section.active {
+  opacity: 1;
+}
+section:last-child {
+  border-bottom: none;
+  margin-bottom: 200px;
+}
+
+.marker {
+  background-image: url("icon.png");
+  background-size: cover;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+}

@@ -7,24 +7,34 @@ const eventsEndPoint = (codeCountry) =>
 
 const venuesCall = `https://app.ticketmaster.com/discovery/v2/venues?apikey=${accessKey}&countryCode=${country}&sort=relevance,asc&size=${limitEvents}`;
 
-const getCurrentEvents = (createSection) => {
-  fetch(eventsEndPoint(country))
-    .then((res) => res.json())
-    .then((dataset) => {
-      getEvents(dataset);
+const getCurrentEvents = () => {
+  $.ajax({
+    url: eventsEndPoint(country),
+    success: function (dataset) {
       getInfoVenues(dataset);
-    });
+      getEvents(dataset);
+    },
+    error: function (error) {
+      console.log(error);
+    },
+  });
 };
 
-const centers = (getInfoCurrentVenue) => {
-  fetch(eventsEndPoint(country))
-    .then((res) => res.json())
-    .then((dataset) => {
+const createList = (getInfoCurrentVenue) => {
+  $.ajax({
+    url: eventsEndPoint(country),
+    success: function (dataset) {
       const venueInfo = getInfoVenues(dataset);
       const createSections = createSectionCoordinate(venueInfo);
+      addMarkerVenue(createSections);
+
       getCenter(createSections, venueInfo);
-      getInfoCurrentVenue(getInfoVenues(dataset));
-    });
+      getInfoCurrentVenue(venueInfo);
+    },
+    error: function (error) {
+      console.log(error);
+    },
+  });
 };
 
 function getEvents(dataset, type) {
@@ -116,6 +126,9 @@ function createSectionCoordinate(dataset) {
       center: dataset[id][0].cleanCoordinate,
       bearing: 27,
       zoom: 17,
+      speed: 1,
+      curve: 0.7,
+      pitch: 45,
     });
   });
 
@@ -123,13 +136,27 @@ function createSectionCoordinate(dataset) {
 }
 
 function getCenter(info) {
-  var chapters = info;
+  const initialCenter = [9.19, 45.4642];
+
+  var chapters = {
+    "first-section": {
+      center: initialCenter,
+      bearing: 27,
+      zoom: 13,
+      speed: 1,
+      curve: 0.7,
+      pitch: 45,
+    },
+    ...info,
+  };
 
   window.onscroll = function () {
     var chapterNames = Object.keys(chapters);
+    console.log(chapterNames);
 
     for (var i = 0; i < chapterNames.length; i++) {
       var chapterName = chapterNames[i];
+
       if (isElementOnScreen(chapterName)) {
         setActiveChapter(chapterName);
         break;
@@ -142,6 +169,7 @@ function getCenter(info) {
 
   function setActiveChapter(chapterName) {
     if (chapterName === activeChapterName) return;
+    console.log(chapterName);
 
     map.flyTo(chapters[chapterName]);
 
@@ -153,6 +181,8 @@ function getCenter(info) {
 
   function isElementOnScreen(id) {
     var element = document.getElementById(id);
+    console.log(element);
+
     var bounds = element.getBoundingClientRect();
 
     return (
@@ -160,4 +190,14 @@ function getCenter(info) {
       bounds.bottom > window.innerHeight - 400
     );
   }
+}
+
+function addMarkerVenue(coordinates) {
+  const ids = Object.keys(coordinates);
+
+  ids.forEach((id) => {
+    var el = document.createElement("div");
+    el.className = "marker";
+    new mapboxgl.Marker(el).setLngLat(coordinates[id].center).addTo(map);
+  });
 }
