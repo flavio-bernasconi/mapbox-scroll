@@ -27,8 +27,7 @@ const createList = (getInfoCurrentVenue) => {
       const venueInfo = getInfoVenues(dataset);
       const createSections = createSectionCoordinate(venueInfo);
       addMarkerVenue(createSections);
-
-      getCenter(createSections, venueInfo);
+      getCurrentCenter(createSections);
       getInfoCurrentVenue(venueInfo);
     },
     error: function (error) {
@@ -135,7 +134,7 @@ function createSectionCoordinate(dataset) {
   return container;
 }
 
-function getCenter(info) {
+function getCurrentCenter(info) {
   const initialCenter = [9.19, 45.4642];
 
   var chapters = {
@@ -152,7 +151,6 @@ function getCenter(info) {
 
   window.onscroll = function () {
     var chapterNames = Object.keys(chapters);
-    console.log(chapterNames);
 
     for (var i = 0; i < chapterNames.length; i++) {
       var chapterName = chapterNames[i];
@@ -165,12 +163,10 @@ function getCenter(info) {
   };
 
   var activeChapterName = "first-section";
-  $(`#${Object.keys(info)[0]}`).addClass("active");
+  $(`#${Object.keys(chapters)[0]}`).addClass("active");
 
   function setActiveChapter(chapterName) {
     if (chapterName === activeChapterName) return;
-    console.log(chapterName);
-
     map.flyTo(chapters[chapterName]);
 
     document.getElementById(chapterName).setAttribute("class", "active");
@@ -181,8 +177,6 @@ function getCenter(info) {
 
   function isElementOnScreen(id) {
     var element = document.getElementById(id);
-    console.log(element);
-
     var bounds = element.getBoundingClientRect();
 
     return (
@@ -190,6 +184,8 @@ function getCenter(info) {
       bounds.bottom > window.innerHeight - 400
     );
   }
+
+  return activeChapterName;
 }
 
 function addMarkerVenue(coordinates) {

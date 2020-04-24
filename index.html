@@ -17,20 +17,19 @@
   <body>
     <div id="map"></div>
     <div id="features">
+      <button class="btn-next">next</button>
       <section id="first-section"><h1>first section</h1></section>
-      <!-- <section id="baker" class="active"></section>
-      <section id="aldgate"> -->
     </div>
 
     <script id="section-event" type="text/x-handlebars-template">
-      <section class="event " id="{{id}}">
+      <section class="event " id="{{id}}" name={{id}}>
         <h1 class="location-name">
           {{location}}
         </h1>
         <div class="flex ">
           <div class="names">
                 {{#each infoEvent as |item|}}
-                <div class="location card">
+                <div class="location card" >
                     <h1 >{{item.[0]}}</h1>
                     <div class="dates">
                         <h2>{{item.[2]}}</h2>
@@ -67,6 +66,19 @@
       getCurrentEvents();
       createList(getInfoCurrentVenue);
 
+      $(document).ready(function () {
+        $(".btn-next").click(function () {
+          var y = $(window).scrollTop();
+          console.log(y + window.innerHeight);
+          $("html, body").animate(
+            {
+              scrollTop: y + window.innerHeight,
+            },
+            2000
+          );
+        });
+      });
+
       function getInfoCurrentVenue(dataset) {
         const uidsEvents = Object.keys(dataset);
 
@@ -99,30 +111,6 @@
           $("#features").append(html);
         });
       }
-
-      //   var geojson = {
-      //     type: "FeatureCollection",
-      //     features: [
-      //       {
-      //         type: "Feature",
-      //         geometry: {
-      //           type: "Point",
-      //           coordinates: [-77.032, 38.913],
-      //         },
-      //       },
-      //     ],
-      //   };
-
-      //   geojson.features.forEach(function (marker) {
-      //     // create a HTML element for each feature
-      //     var el = document.createElement("div");
-      //     el.className = "marker";
-
-      //     // make a marker for each feature and add to the map
-      //     new mapboxgl.Marker(el)
-      //       .setLngLat(marker.geometry.coordinates)
-      //       .addTo(map);
-      //   });
     </script>
   </body>
 </html>

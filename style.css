@@ -20,6 +20,7 @@ h4 {
   -moz-animation: AnimationName 5s ease infinite;
   animation: AnimationName 5s ease infinite;
   color: white;
+  width: 37%;
 }
 
 @-webkit-keyframes AnimationName {
@@ -62,6 +63,9 @@ h4 {
 .names {
   width: 100%;
   font-weight: lighter !important;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 .location {
   display: flex;
@@ -84,6 +88,7 @@ h4 {
   background-color: #fafafa;
 }
 section {
+  box-sizing: border-box;
   padding: 25px 50px;
   line-height: 25px;
   border-bottom: 1px solid #ddd;
@@ -94,6 +99,7 @@ section {
 section.active {
   opacity: 1;
 }
+
 section:last-child {
   border-bottom: none;
   margin-bottom: 200px;
@@ -106,4 +112,8 @@ section:last-child {
   height: 50px;
   border-radius: 50%;
   cursor: pointer;
+}
+.btn-next {
+  position: fixed;
+  z-index: 9999;
 }
